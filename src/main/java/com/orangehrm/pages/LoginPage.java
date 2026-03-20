@@ -1,25 +1,33 @@
 package com.orangehrm.pages;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
 
 import com.orangehrm.actiondriver.ActionDriver;
 
 public class LoginPage {
 	private ActionDriver actionDriver;
 	
-	private By usernameFeild = By.id("txtUsername");
-	private By passwordFeild = By.id("input[name='txtPassword']");
-	private By loginButton = By.id("btnLogin");
-	private By errorMessage = By.xpath("//span[@id='spanMessage']");
+	// Updated locators to match newer OrangeHRM demo (name attributes)
+	private By usernameFeild = By.name("username");
+	private By passwordFeild = By.name("password");
+	private By loginButton = By.cssSelector("button[type='submit']");
+	private By errorMessage = By.xpath("//p[@class='oxd-text oxd-text--p oxd-alert-content-text']");
 	
+	// Constructor that accepts an ActionDriver (existing usage)
 	public LoginPage(ActionDriver actionDriver) {
 		this.actionDriver = actionDriver;
+	}
+
+	// Convenience constructor that accepts WebDriver and creates an ActionDriver
+	public LoginPage(WebDriver driver) {
+		this.actionDriver = new ActionDriver(driver);
 	}
 	
 	// method to perform login
 	public void login(String username, String password) {
-		actionDriver.enterText(usernameFeild, "admin");
-		actionDriver.enterText(passwordFeild, "admin123");
+		actionDriver.enterText(usernameFeild, username);
+		actionDriver.enterText(passwordFeild, password);
 		actionDriver.click(loginButton);
 	}
 	

@@ -1,7 +1,14 @@
 package com.orangehrm.actiondriver;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -16,14 +23,15 @@ public class ActionDriver {
 
 	public ActionDriver(WebDriver driver) throws NumberFormatException {
 		this.driver = driver;
-		int explicitWait = 30; // default
+		int explicitWait = 30; // default fallback
 		try {
-			String s = BaseClass.getProp().getProperty("explicitWaitTime");
+			String s = BaseClass.getProp().getProperty("explicitWait");
 			if (s != null && !s.trim().isEmpty()) {
 				explicitWait = Integer.parseInt(s.trim());
 			}
-		} catch (NumberFormatException e) {
-			System.out.println("Invalid explicitWaitTime in properties, using default 30s: " + e.getMessage());
+		} catch (Exception e) {
+			// Log and continue with default
+			System.out.println("Could not read explicitWait from properties, using default 30s: " + e.getMessage());
 		}
 		this.wait = new WebDriverWait(driver, java.time.Duration.ofSeconds(explicitWait));
 	}
@@ -61,7 +69,7 @@ public class ActionDriver {
 	}
 	public void WaitForPageLoad(int timeoutInSeconds) {
 		try {
-			wait.withTimeout(java.time.Duration.ofSeconds(30)).until(
+			wait.withTimeout(java.time.Duration.ofSeconds(timeoutInSeconds)).until(
 					webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
 		}
 		catch (Exception e) {
@@ -77,12 +85,12 @@ public class ActionDriver {
 			WebElement element = driver.findElement(by);
 			element.clear();
 			element.sendKeys(text);
-	
 		} catch (Exception e) {
 			System.out.println("Failed to enter text: " + e.getMessage());
 			throw e;
 		}
 	}
+	
 
 	public String getText(By by) {
 		try {
@@ -102,7 +110,7 @@ public class ActionDriver {
 				System.out.println("Text matches: " + actualText);
 			} else {
 				System.out.println(
-						"Text does not match! Actual: " + actualText + "not equals, Expected: " + expectedText);
+					"Text does not match! Actual: " + actualText + "not equals, Expected: " + expectedText);
 			}
 		} catch (Exception e) {
 			System.out.println("Failed to compare text: " + e.getMessage());
@@ -131,5 +139,13 @@ public class ActionDriver {
 			System.out.println("Failed to scroll to element: " + e.getMessage());
 			throw e;
 		}
+	}
+
+	public boolean isElementVisible(By adminTab) {
+		return isDisplayed(adminTab);
+	}
+
+	public boolean isElementVisible1(By logo) {
+		return isDisplayed(logo);
 	}
 }

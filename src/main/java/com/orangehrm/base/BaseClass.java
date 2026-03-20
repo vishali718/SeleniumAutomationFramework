@@ -77,20 +77,30 @@ public class BaseClass {
 			e.printStackTrace();
 		}
 	}
-	public void setProp(Properties prop) {
-		this.prop = prop;
+
+	/**
+	 * Set the shared Properties object (static). Use carefully; prefer loadconfig().
+	 */
+	public static void setProp(Properties properties) {
+		prop = properties;
 	}
-       //getter method for prop
-	public void getProp(Properties prop) {
-		return;
+
+	/**
+	 * Return the loaded Properties. Throws a clear exception if properties not yet loaded.
+	 */
+	public static Properties getProp() {
+		if (prop == null) {
+			throw new IllegalStateException("Properties not loaded. Call loadconfig() first.");
+		}
+		return prop;
 	}
-	
+
 	public WebDriver getDriver() {
 		return driver;
 	}
 
 	public void setDriver(WebDriver driver) {
-		this.driver = driver;
+		BaseClass.driver = driver;
 	}
 
 	public void staticWait(int seconds) {
@@ -104,8 +114,4 @@ public class BaseClass {
 		}
 	}
 
-	public static System getProp() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }
