@@ -17,7 +17,7 @@ import org.testng.annotations.BeforeSuite;
 
 public class BaseClass {
 
-	protected static Properties prop;
+	public static Properties prop;
 	protected static WebDriver driver;
 
 	// Ensure properties are loaded once before any tests run
@@ -77,7 +77,14 @@ public class BaseClass {
 			e.printStackTrace();
 		}
 	}
-
+	public void setProp(Properties prop) {
+		this.prop = prop;
+	}
+       //getter method for prop
+	public void getProp(Properties prop) {
+		return;
+	}
+	
 	public WebDriver getDriver() {
 		return driver;
 	}
@@ -95,5 +102,10 @@ public class BaseClass {
 		if (driver != null) {
 			driver.quit();
 		}
+	}
+
+	public static System getProp() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

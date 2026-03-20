@@ -1,18 +1,31 @@
 package com.orangehrm.actiondriver;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
+import com.orangehrm.base.BaseClass;
 
 public class ActionDriver {
 
 	private WebDriver driver;
 	private WebDriverWait wait;
 
-	public ActionDriver(WebDriver driver) {
+	public ActionDriver(WebDriver driver) throws NumberFormatException {
 		this.driver = driver;
-		this.wait = new WebDriverWait(driver, java.time.Duration.ofSeconds(30));
+		int explicitWait = 30; // default
+		try {
+			String s = BaseClass.getProp().getProperty("explicitWaitTime");
+			if (s != null && !s.trim().isEmpty()) {
+				explicitWait = Integer.parseInt(s.trim());
+			}
+		} catch (NumberFormatException e) {
+			System.out.println("Invalid explicitWaitTime in properties, using default 30s: " + e.getMessage());
+		}
+		this.wait = new WebDriverWait(driver, java.time.Duration.ofSeconds(explicitWait));
 	}
 
 	public void waitForElementtobeClickable(By by) {
@@ -46,12 +59,25 @@ public class ActionDriver {
 			throw e;
 		}
 	}
+	public void WaitForPageLoad(int timeoutInSeconds) {
+		try {
+			wait.withTimeout(java.time.Duration.ofSeconds(30)).until(
+					webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
+		}
+		catch (Exception e) {
+			System.out.println("Page did not load within the expected time: " + e.getMessage());
+			throw e ;
+		}
+	}
+	
 
 	public void enterText(By by, String text) {
 		try {
 			waitForElementToBeVisible(by);
-			driver.findElement(by).clear();
-			driver.findElement(by).sendKeys(text);
+			WebElement element = driver.findElement(by);
+			element.clear();
+			element.sendKeys(text);
+	
 		} catch (Exception e) {
 			System.out.println("Failed to enter text: " + e.getMessage());
 			throw e;
@@ -64,7 +90,7 @@ public class ActionDriver {
 			return driver.findElement(by).getText();
 		} catch (Exception e) {
 			System.out.println("Failed to get text: " + e.getMessage());
-			return "";
+			return " ";
 		}
 	}
 
@@ -87,15 +113,23 @@ public class ActionDriver {
 	public boolean isDisplayed(By by) {
 		try {
 			waitForElementToBeVisible(by);
-			boolean displayed = driver.findElement(by).isDisplayed();
-			if (displayed) {
-				System.out.println("Element is displayed.");
-			} else {
-				System.out.println("Element is not displayed.");
-			}
+			return driver.findElement(by).isDisplayed();
 		} catch (Exception e) {
-			System.out.println("Failed to check if element is displayed: " + e.getMessage());
+			System.out.println("Element not displayed: " + e.getMessage());
+			return false;
 		}
-		return false;
+	}
+
+
+	public void scrolltoElement(By by) {
+		try {
+			waitForElementToBeVisible(by);
+			WebElement element = driver.findElement(by);
+			JavascriptExecutor js = (JavascriptExecutor) driver;
+			js.executeScript("arguments[0].scrollIntoView(true);", element);
+		} catch (Exception e) {
+			System.out.println("Failed to scroll to element: " + e.getMessage());
+			throw e;
+		}
 	}
 }
